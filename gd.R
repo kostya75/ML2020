@@ -21,36 +21,39 @@ gd<-function(formula,data,subset,theta){
   x <- model.matrix(mt, mf)
   
   #lm.fit (x, y)$coefficients
-  tt<-list(x,y,theta)
+  out<-list(x=x,y=y,theta=theta)
 }
 
+###################### WORKS ########################
 
-tt_f<-function(formula,data,subset,theta){
-  cl<-match.call()
-  
-  mf <- match.call(expand.dots = F)
-  
-  m <- match(c("formula", "data","subset"), 
-              names(mf), 0L)
-  mf <- mf[c(1L, m)]
-  
-  # 
-  mf$drop.unused.levels <- TRUE
-  mf[[1L]] <- quote(stats::model.frame)
-  mf <- eval(mf, parent.frame())
-  mt <- attr(mf, "terms")
-  # 
-  y <- model.response(mf, "numeric")
-  x <- model.matrix(mt, mf)
-  theta
-  # 
-  # 
-  tt<-list(x,y,theta)
-  #lm.fit (x, y)$coefficients
-}
+# tt_f<-function(formula,data,subset,theta){
+#   cl<-match.call()
+#   
+#   mf <- match.call(expand.dots = F)
+#   
+#   m <- match(c("formula", "data","subset"), 
+#               names(mf), 0L)
+#   mf <- mf[c(1L, m)]
+#   
+#   # 
+#   mf$drop.unused.levels <- TRUE
+#   mf[[1L]] <- quote(stats::model.frame)
+#   mf <- eval(mf, parent.frame())
+#   mt <- attr(mf, "terms")
+#   # 
+#   y <- model.response(mf, "numeric")
+#   x <- model.matrix(mt, mf)
+#   theta
+#   # 
+#   # 
+#   tt<-list(x,y,theta)
+#   #lm.fit (x, y)$coefficients
+# }
 
-tt<-tt_f(price~bedroom+footage-1,data=df_prices,subset=10:47,theta=c(1,2))
-tt
+# tt<-tt_f(price~bedroom+footage-1,data=df_prices,subset=10:47,theta=c(1,2))
+# tt
+
+###################### WORKS ########################
 
 #returns specified by full name
 #tt_f(formula = price ~ footage + bedroom, data = df_price)
@@ -69,4 +72,4 @@ tt
 
 tt<-gd(price~bedroom+footage-1,data=df_prices,subset=10:47,theta=c(1,2))
 
-lm(price~bedroom+footage-1,data=df_prices,subset=10:47)
+#lm(price~bedroom+footage-1,data=df_prices,subset=10:47)
