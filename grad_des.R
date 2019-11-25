@@ -17,12 +17,16 @@ gradientDescentMulti<-function(X, y, theta, alpha, num_iters){
   for(i in seq_len(num_iters)){
     theta<-theta-alpha/m*(t(X)%*%(X%*%theta-y))
     J_history[i]<-computeCost2(X, y, theta)
+    if(i>1 &&  abs(1-(J_history[i]/J_history[i-1]))<0.025) break
   }
-  J_history
+  #J_history
+  theta
 }
   
 
+tt<-gd(price~footage+bedroom,data=df_prices,theta=l_tt+100)
 
+l_tt<-lm(price~footage+bedroom,data=df_prices)$coefficients
 
 tt<-lapply(tt,as.matrix)
 lapply(tt,dim)
@@ -30,7 +34,9 @@ x1<-tt[["x"]]
 y1<-tt[["y"]]
 theta1<-tt[["theta"]]
 
-J<-gradientDescentMulti(x1,y1,theta1,alpha=.05,10)
+c1<-computeCost2(x1,y1,theta1)
+
+J<-gradientDescentMulti(x1,y1,theta1,alpha=.00005,1000)
 cc<-computeCost2(x1, y1, theta1)
 
 

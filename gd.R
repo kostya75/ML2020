@@ -19,9 +19,12 @@ gd<-function(formula,data,subset,theta){
   
   y <- model.response(mf, "numeric")
   x <- model.matrix(mt, mf)
-  
+  #
+  n<-ncol(x)
+  if(n!=length(theta)) stop("Model formula and initial theta have incompatible dimensions")
   #lm.fit (x, y)$coefficients
   out<-list(x=x,y=y,theta=theta)
+  
 }
 
 ###################### WORKS ########################
