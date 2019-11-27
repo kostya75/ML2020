@@ -17,45 +17,57 @@ gradientDescentMulti<-function(X, y, theta, alpha, num_iters){
   for(i in seq_len(num_iters)){
     theta<-theta-alpha/m*(t(X)%*%(X%*%theta-y))
     J_history[i]<-computeCost2(X, y, theta)
-    #if(i>1 &&  abs(1-(J_history[i]/J_history[i-1]))<0.0000025) break
+    #Conversion<-(i>1 &&  abs(1-(J_history[i]/J_history[i-1]))<0.00000005)
+    Conversion<-( i>1 &&  abs(1-(J_history[i]/J_history[i-1]))<0.00000005)
+    #if(Conversion) break
+    if(is.na(Conversion)==F){
+
+      if(Conversion) break
+    } else  {
+      stop(sprintf("Failed to converge. Learning rate alpha = '%s' is too large.",
+                    alpha), domain = NA)
+    }
+    
   }
-  #J_history
-  out<-list(theta,J_history)
+
+  out<-list(theta,i)
 }
 
 
 
+################################# simple ################################
 
+gradientDescentSimple<-function(df, m, c, L=0.0001, num_iters=1000){
   
+  
+  X<-df[,1]
+  n<-length(X)
+  Y<-df[,2]
+  for(i in seq_len(num_iters)){
+    Y_pred<-m*Y+c
+    #D_m<-(-1/n)*sum(X*(Y-Y_pred))
+    # D_m<-(1/n)*sum(X*(Y-Y_pred))
+    # D_c<-(1/n)*sum(Y-Y_pred) 
+    
+    m<-m-(L/n)*sum(X*(Y_pred-Y))
+    c<-c-(L/n)*sum(Y_pred-Y)
+    print(m)
+  }
+  #print(Y)
+  out<-list(m,c)
+}
 
-# tt<-gd(price~footage+bedroom,data=df_prices,theta=l_tt+100)
-# 
-# l_tt<-lm(price~footage+bedroom,data=df_prices)$coefficients
-# 
-# tt<-lapply(tt,as.matrix)
-# lapply(tt,dim)
-# x1<-tt[["x"]]
-# y1<-tt[["y"]]
-# theta1<-tt[["theta"]]
-# 
-# c1<-computeCost2(x1,y1,theta1)
-# 
-# J<-gradientDescentMulti(x1,y1,theta1,alpha=.00005,1000)
-# cc<-computeCost2(x1, y1, theta1)
-# 
-# 
-# theta1-t(x1)%*%(x1%*%theta1-y1)
-# 
-# 
-# num_iters=100
-# J_history<-vector(mode = "numeric", length = num_iters)
-# X=x1
-# y=y1
-# theta=theta1
-# alpha=0.5
-# m<-nrow(X)
-# for(i in seq_len(num_iters)){
-#   theta<-theta-alpha/m*(t(X)%*%(X%*%theta-y))
-#   J_history[i]<-computeCost2(X, y, theta)
-# }
-# J_history
+tt_simple<-gradientDescentSimple(gp, m=0, c=0,num_iters=100)
+
+tt_simple[[1]]
+tt_simple[[2]]
+
+tt2<-gradientDescentMulti(X=tt[[1]], y=tt[[2]], theta=c(0,0), alpha=0.00015, num_iters=500000)
+tt2[[1]]
+tt2[[2]]
+
+
+##################
+tt3<-gd(y2~X21,data=df2,theta=c(1,0),alpha=0.000005, num_iters=500000)
+tt3[[1]]
+tt3[[2]]
