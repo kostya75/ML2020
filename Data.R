@@ -4,3 +4,6 @@ names(df_prices)<-c("footage","bedroom","price")
 
 
 
+grades<-read.csv("ex2data1.txt",header = FALSE)
+names(grades)<-c("e1","e2","success")
+
