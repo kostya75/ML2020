@@ -15,6 +15,7 @@ ComputeCostLogistic<-function(X, y, theta){
 
 # gradient vector of length theta
 gradLogistic<-function(X, y, theta){
+  m<-dim(X)[1]
   grad<-(1/m)*t(X)%*%(sigmoid(X%*%theta)-y)
   grad<-as.numeric(grad)
 }

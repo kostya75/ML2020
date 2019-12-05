@@ -67,7 +67,7 @@ gradientDescentMulti<-function(X, y, theta, alpha, num_iters){
   J_history<-vector(mode = "numeric", length = num_iters)
   m<-nrow(X)
   for(i in seq_len(num_iters)){
-    theta<-theta-alpha/m*(t(X)%*%(X%*%theta-y))
+    theta<-theta-(t(X)%*%(X%*%theta-y))*(alpha/m)
     J_history[i]<-computeCost2(X, y, theta)
     #Conversion<-(i>1 &&  abs(1-(J_history[i]/J_history[i-1]))<0.00000005)
     Conversion<-( i>1 &&  abs(1-(J_history[i]/J_history[i-1]))<0.00000005)
@@ -84,4 +84,28 @@ gradientDescentMulti<-function(X, y, theta, alpha, num_iters){
   
   out<-list(theta,i)
 }
+
+
+gradientDescentMulti<-function(X, y, theta, alpha, num_iters){
+  J_history<-vector(mode = "numeric", length = num_iters)
+  m<-nrow(X)
+  for(i in seq_len(num_iters)){
+    theta<-theta-(t(X)%*%(X%*%theta-y))*(alpha/m)
+    J_history[i]<-computeCost2(X, y, theta)
+    #Conversion<-(i>1 &&  abs(1-(J_history[i]/J_history[i-1]))<0.00000005)
+    # Conversion<-( i>1 &&  abs(1-(J_history[i]/J_history[i-1]))<0.00000005)
+    # #if(Conversion) break
+    # if(is.na(Conversion)==F){
+    #   
+    #   if(Conversion) break
+    # } else  {
+    #   stop(sprintf("Failed to converge. Learning rate alpha = '%s' is too large.",
+    #                alpha), domain = NA)
+    # }
+    
+  }
+  
+  out<-list(theta,i)
+}
+
 
