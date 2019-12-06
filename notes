@@ -4,3 +4,16 @@ Review:
 eval
 quote
 model.frame
+
+
+blog: 
+
+TC test
+
+w2: GradientDescent.R
+
+w3: 
+gdl: simple
+gdlreg: regularized
+gdlreg_wip: final with closures
+
