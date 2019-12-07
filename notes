@@ -17,3 +17,6 @@ gdl: simple
 gdlreg: regularized
 gdlreg_wip: final with closures
 
+w4:
+HandWriting.R: example of the data
+
