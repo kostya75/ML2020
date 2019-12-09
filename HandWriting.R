@@ -1,17 +1,16 @@
 
+# Plot grid 
+# mimic displayData.m
+library(ggplot2)
 
 m=dim(data_numbers$X)[1]
-
 rand_indices<-sample(m,100)
 sel<-data_numbers$X[rand_indices[1:100],]
 
 
-dim(sel[1,])
-
-library(ggplot2)
-
-
+#Roll vector into a grid with 2 coordinates and the value
 number_df<-NULL
+# individual number (vector of 400 features)
 for (s in 1:100){
   temp_matrix<-matrix(sel[s,],nrow=20,byrow=T)
   for(i in 1:20){
@@ -21,7 +20,6 @@ for (s in 1:100){
       #print(temp)
     }
   }
-  print(s)
 }
 
 
