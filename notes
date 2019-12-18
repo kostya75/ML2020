@@ -20,4 +20,4 @@ gdlreg_wip: final with closures
 w4:
 HandWriting.R: example of the data (replicate displayData.m)
 ComputeCostGradient from w3 replicates lrCostFunction(theta, X, y, lambda)
-gdlregMulti: can handle multiclass, no need to specify K. based of gdlreg_wip
+OneVsAll.R gdlregMulti: can handle multiclass, no need to specify K. based of gdlreg_wip

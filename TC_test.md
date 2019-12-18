@@ -280,7 +280,7 @@ The function ``gd`` takes the following inputs:
 The function outputs a list that has 3 elements:
 
 - `theta` parameter vector of model coefficients   
-- `scalingMatrix` matrix of means and st. deviations for each regressor. If `infl=1`, mean is set to 0 and st. dev is set to 1 for the first column in X's
+- `scalingMatrix` matrix of means and st. deviations for each regressor. If there is `Intercept` in the model, mean is set to 0 and st. dev is set to 1 for the first column in X's
 - `iteration` how many iterations it took to converge  
   
 
@@ -315,6 +315,8 @@ gd<-function(formula,data,subset,theta,alpha=1e-4, num_iters=1e+4, threshold=5e-
   model<-list(theta=out$theta, scalingMatrix=scalingMatrix, iteration=out$iteration)
 }
 ```
+**Testing:** Check the results of **gd** against built-in **lm** function
+
 
 
 
