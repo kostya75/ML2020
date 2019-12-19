@@ -73,8 +73,8 @@ gdlreg2<-function(formula,data,subset,theta, lambda=0, method ="Nelder-Mead"){
 
 
 #test
-# tt<-gdlreg2(success~e1+e2,data=grades,theta=theta,lambda=0)
-# tt
+tt<-gdlreg2(success~e1+e2,data=grades,theta=c(0,0,0),lambda=0)
+tt
 # 
 # glm(success~e1+e2,data=grades,family="binomial")
 

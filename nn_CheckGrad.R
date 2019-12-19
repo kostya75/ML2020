@@ -1,16 +1,3 @@
-# sigmoidGradient.m - Compute the gradient of the sigmoid function
-# randInitializeWeights.m - Randomly initialize weights
-# nnCostFunction.m - Neural network cost function
-
-
-#Setup the parameters you will use for this exercise
-input_layer_size<-400   # 20x20 Input Images of Digits
-hidden_layer_size<-25   # 25 hidden units
-num_labels<-10          # 10 labels, from 1 to 10 
-nn_params<-NULL         # a vector of unrolled thetas
-lambda<-0
-
-
 X<-nn_data[["X"]]
 y<-nn_data[["y"]]
 
@@ -24,9 +11,9 @@ nn_params = c(as.vector(Theta1),as.vector(Theta2))
 
 nnCostFunction<-function(type){
   function(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, lambda){
- 
     
-#Reshape nn_params back into the parameters Theta1 and Theta2, the weight matrices for our 2 layer neural network    
+    
+    #Reshape nn_params back into the parameters Theta1 and Theta2, the weight matrices for our 2 layer neural network    
     Theta1<-matrix(
       nn_params[1:(hidden_layer_size*(input_layer_size+1))],
       nrow=hidden_layer_size,
@@ -71,8 +58,8 @@ nnCostFunction<-function(type){
     Theta2_adj<-ones_zeros(1,dim(Theta2))
     Theta2_adj[,1]=0
     
-    Theta1_grad=(1/m)*(t(d2)%*%a1+lambda*Theta1*Theta1_adj)
-    Theta2_grad=(1/m)*(t(d3)%*%a2+lambda*Theta2*Theta2_adj)
+    Theta1_grad<-(1/m)*(t(d2)%*%a1+lambda*Theta1*Theta1_adj)
+    Theta2_grad<-(1/m)*(t(d3)%*%a2+lambda*Theta2*Theta2_adj)
     
     grad<-c(as.vector(Theta1),as.vector(Theta2))
     
@@ -84,7 +71,7 @@ nnCostFunction<-function(type){
       grad
     }
     else stop("Invalid output request from CostGradient: acceptable values are: 'J' and 'grad'")
-
+    
   }
 }
 
@@ -102,12 +89,13 @@ randInitializeWeights<-function(L_in,L_out){
 nn<-function(X,y,input_layer_size, hidden_layer_size, num_labels,lambda=0,method="L-BFGS-B"){
   initial_Theta1<-randInitializeWeights(input_layer_size,hidden_layer_size)
   initial_Theta2<-randInitializeWeights(hidden_layer_size,num_labels)
-  initial_nn_params<-c(as.vector(initial_Theta1),as.vector(initial_Theta2))
+  #initial_nn_params<-c(as.vector(initial_Theta1),as.vector(initial_Theta2))
+  nn_params<-c(as.vector(initial_Theta1),as.vector(initial_Theta2))
   
   J<-nnCostFunction("J")
   grad<-nnCostFunction("grad")
   
-  res<-optim(initial_nn_params,J,grad,X,y,input_layer_size, hidden_layer_size, num_labels,lambda=0,method="L-BFGS-B")
+  res<-optim(nn_params,J,grad,X,y,input_layer_size, hidden_layer_size, num_labels,lambda=0,method="L-BFGS-B")
   
   Theta1_hat<-matrix(
     res$par[1:(hidden_layer_size*(input_layer_size+1))],
@@ -129,51 +117,35 @@ predict_nn<-function(Theta1, Theta2, X){
   p<-apply(h2,1,which.max)
 }
 
+##########################################
+#gradiend checking
 
-################ testing local ###############
 
-tt<-nn(X,y,input_layer_size=400, hidden_layer_size=5, num_labels=10,method="L-BFGS-B")
+grad<-nnCostFunction("grad")
+J<-nnCostFunction("J")
+g_analytical<-grad(nn_params, input_layer_size=400, hidden_layer_size=25, num_labels=10, X, y, lambda=1)
+l<-length(g_analytical)
+e<-1e-5
+g_numeric<-vector(mode="numeric",length=100)
+#for(i in seq_len(l)){
+for (i in 1:100){
+  e_vector<-rep(0,l)
+  e_vector[i]<-e
+  nn_param_plus<-nn_params+e_vector
+  nn_param_minus<-nn_params-e_vector
+  JP<-J(nn_param_plus, input_layer_size=400, hidden_layer_size=25, num_labels=10, X, y, lambda=1)
+  JM<-J(nn_param_minus, input_layer_size=400, hidden_layer_size=25, num_labels=10, X, y, lambda=1)
+  g_numeric[i]<-(JP-JM)/(2*e)
+  
+}
 
-tt2<-predict_nn(tt[[1]], tt[[2]], X)
-table(tt2)
 
-# J<-nnCostFunction("J")
-# grad<-nnCostFunction("grad")
-# 
-# initial_nn_params<-rnorm(10285)
-# res<-optim(initial_nn_params,J,grad,X=X,y=y,input_layer_size=400, hidden_layer_size=25, num_labels=10,lambda=0,method="L-BFGS-B")
-# 
-# 
-# Theta1_hat<-matrix(
-#   res$par[1:(hidden_layer_size*(input_layer_size+1))],
-#   nrow=hidden_layer_size,
-#   ncol=(input_layer_size+1))
-# 
-# Theta2_hat<-matrix(
-#   res$par[(1+hidden_layer_size*(input_layer_size+1)):length(nn_params)],
-#   nrow=num_labels,
-#   ncol=(hidden_layer_size+1))
-# 
-# 
-# 
-# tt<-predict_nn(Theta1_hat, Theta2_hat, X)
-# 
-# # tt<-matrix(
-# # nn_params[1:(hidden_layer_size*(input_layer_size+1))],
-# # nrow=hidden_layer_size,
-# # ncol=(input_layer_size+1))
-# # 
-# # identical(Theta1,tt)
-# # 
-# # Theta1[1:5,1:5]
-# # tt[1:5,1:5]
-# # 
-# # tt<-matrix(
-# #   nn_params[(1+hidden_layer_size*(input_layer_size+1)):length(nn_params)],
-# #   nrow=num_labels,
-# #   ncol=(hidden_layer_size+1))
-# # 
-# # identical(Theta2,tt)
-# 
-# # Theta2[1:5,1:5]
-# # tt[1:5,1:5]
+
+##########################################
+
+
+
+nn_params<-rnorm(10285)
+optim(nn_params,J,grad,X,y,input_layer_size=400, hidden_layer_size=25, num_labels=10,lambda=0,method="BFGS")
+
+

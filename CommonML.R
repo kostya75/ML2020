@@ -38,3 +38,9 @@ featureNormalize<-function(xm, infl){
   X_norm<-(xm-mus)/sds
   out<-list(x=X_norm,scalingMatrix=scalingMatrix)
 }
+
+# pass matrix size to create empty matrix of same size with a value
+ones_zeros<-function(value,size){
+  if(length(size)!=2  | !is.numeric(size)) stop("Size should have length of 2 and be numeric")
+  matrix(value,nrow=size[1],ncol=size[2])
+}
