@@ -13,4 +13,11 @@ install.packages('rmatio')
 
 library(rmatio)
 
+#week 4
+#lm data
 data_numbers<-read.mat("w4/ex3data1.mat")
+
+#week5
+#nn data
+nn_data<-read.mat("w5/ex4data1.mat")
+nn_weights<-read.mat("w5/ex4weights.mat")
