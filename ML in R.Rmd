@@ -1,6 +1,6 @@
 ---
 title: "markdown R"
-author: "K Mingoulin"
+author: "not me"
 date: "12/5/2019"
 output:  
   html_document:
