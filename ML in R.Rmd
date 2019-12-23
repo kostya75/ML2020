@@ -1,5 +1,5 @@
 ---
-title: "Machine Learning un R"
+title: "markdown R"
 author: "K Mingoulin"
 date: "12/5/2019"
 output:  

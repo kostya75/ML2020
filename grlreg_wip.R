@@ -26,7 +26,8 @@ ComputeCostGradient<-function(type){
       (-1/m)*sum(y*log(sigmoid(X%*%theta))+(1-y)*log(1-sigmoid(X%*%theta)))+lambda/(2*m)*lambda_vector%*%theta^2
     }
     else if(type=="grad"){
-      as.numeric((1/m)*t(X)%*%(sigmoid(X%*%theta)-y)+lambda/m*lambda_vector*theta)
+      #as.numeric((1/m)*t(X)%*%(sigmoid(X%*%theta)-y)+lambda/m*lambda_vector*theta)
+      (1/m)*(t(X)%*%(sigmoid(X%*%theta)-y))+lambda/m*lambda_vector*theta
     }
     else stop("Invalid output request from CostGradient: acceptable values are: 'J' and 'grad'")
   }
