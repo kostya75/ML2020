@@ -1,6 +1,6 @@
 ---
-title: "Machine Learning un R"
-author: "K Mingoulin"
+title: "markdown R"
+author: "not me"
 date: "12/5/2019"
 output:  
   html_document:

@@ -46,14 +46,44 @@ normalize<-featureNormalize(
 head(normalize$x)
 
 normalize$scalingMatrix
-# tt<-gd(price~bedroom+footage,data=df_prices,theta=c(0,0,0),alpha=0.01,threshold=0.00000000005,normalize=T)
-# tt
-# 
-# df_prices_scaled<-df_prices
-# df_prices_scaled[,c("footage","bedroom")]<-lapply(df_prices[,c("footage","bedroom")],scale)
+tt<-gd(price~bedroom+footage,data=df_prices,theta=c(0,0,0),alpha=0.01,threshold=0.00000000005,normalize=T)
+tt
+#
+df_prices_scaled<-df_prices
+df_prices_scaled[,c("footage","bedroom")]<-lapply(df_prices[,c("footage","bedroom")],scale)
 
-#lm(price~bedroom+footage,data=df_prices_scaled)
+lm(price~bedroom+footage,data=df_prices_scaled)
 
+###################### week3 ####################
+library(ggplot2)
+grades<-read.csv("w3/ex2data1.txt",header = FALSE)
+names(grades)<-c("e1","e2","success")
+
+#chart 1
+
+chw3_1<-
+  ggplot(data=grades)+geom_point(aes(x=e1,y=e2,shape=factor(success),color=factor(success)))+
+  scale_shape_manual(values=c(1,3),labels=c("Not admitted","Admitted"))+
+  scale_color_manual(values=c("red","black"),labels=c("Not admitted","Admitted"))+
+  scale_y_continuous(breaks=seq(0,100,by=10))+
+  scale_x_continuous(breaks=seq(0,100,by=10))+
+  labs(x="Exam 1 score", y="Exam 2 score", color=NULL,shape=NULL)+
+  theme(
+    axis.line=element_line(color="black"),
+    panel.background = element_blank(),
+    panel.grid.major = element_line(color="grey90"),
+    legend.position = c(.85,.9),
+    legend.background = element_rect(color="black"),
+    legend.key = element_blank()
+
+  )
+  
+# Testing
+gdlreg2(success~e1+e2,data=grades,theta=c(0,0,0),lambda=0,method="BFGS")
+
+round(
+glm(success~e1+e2,data=grades, family="binomial")$coef,
+4)
 
 ###################### week4 ####################
 dfnumbers_small<-df_numbers[sample(5000,1000),]
