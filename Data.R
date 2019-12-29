@@ -21,3 +21,7 @@ data_numbers<-read.mat("w4/ex3data1.mat")
 #nn data
 nn_data<-read.mat("w5/ex4data1.mat")
 nn_weights<-read.mat("w5/ex4weights.mat")
+
+#week 4 and 5 common
+handwrit_data<-read.mat("w5/ex4data1.mat")
+handwrit_weights<-read.mat("w5/ex4weights.mat")

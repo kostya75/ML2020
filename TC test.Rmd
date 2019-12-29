@@ -67,7 +67,7 @@ I will make every effort to avoid using any packages other that **ggplot2**. Enj
 
 The **Github repository** for this blog can be found [here](https://github.com/kostya75/ML2020). 
 
-# Week 2: Gradient Descent
+# Part 1: Gradient Descent
 
 
 Lets start with loading the housing data and food truck profit data from the **ex1**. Note that the data is loaded into a dataframe and not into individual X and y matricies.
@@ -294,7 +294,7 @@ lm(price~bedroom+footage,data=df_prices_scaled)
 
 As expected, the results for 2 approached are very close. Note: `gd` also outputs scaling data taht can be used to pre-process the data prior to using `predict`.
 
-# Week 3: Logistic Regression
+# Part 2: Logistic Regression
 
 In this section, I will implement logistic regression and compare the performance to **glm(family=”binomial”)** ouput. Our dataset contains data on university admittance based on two scores a student gets in two exams.  
 Lets load the data...  
@@ -451,6 +451,54 @@ glm(success~e1+e2,data=grades, family="binomial")$coef
 
 ```
 
-# Week 4: coming up
+# Part 3: Multi-class Classification
+
+In this section I will be implementing one-vs-all logistic regression to recognize hand-written digits. We have 2 files that contain 5000 trining examples of handritten digits and the corresponding labels. These files are in native *Octave/Matlab* format and will require package `rmatio` from *CRAN* to read them into *R*. The same 2 datasets will be used in the following sectioon on Neural Networks
+
+```{r rmatio, echo=T}
+library(rmatio)
+
+handwrit_data<-read.mat("w5/ex4data1.mat")
+handwrit_weights<-read.mat("w5/ex4weights.mat")
+```
+
+## Visualizing the data
+
+Next, let's visualize the data. We begin by by randomly selecting 100 rows. Some implementation tips: 1. roll vector of *x's* for each row into a *20x20* matrix/grid; 2. use `geom_raster` to plot a grid; 3. use `facet_wrap` to display all 100 digits in one plot:  
+
+```{r plot_ex3, echo=T}
+library(ggplot2)
+
+m=dim(handwrit_data$X)[1]
+rand_indices<-sample(m,100)
+sel<-handwrit_data$X[rand_indices[1:100],]
+
+
+#Roll vector into a grid with 2 coordinates and the value
+number_df<-NULL
+# individual number (vector of 400 features)
+for (s in 1:100){
+  temp_matrix<-matrix(sel[s,],nrow=20,byrow=T)
+  for(i in 1:20){
+    for(j in 1:20){
+      temp<-data.frame(index=s,x1=i,x2=j,value=temp_matrix[i,21-j])
+      number_df<-rbind(number_df,temp)
+      #print(temp)
+    }
+  }
+}
+
+ggplot(data=number_df,aes(x=x1,y=x2))+geom_raster(aes(fill=value))+facet_wrap(~index, ncol=10)+
+  scale_fill_continuous(type = "viridis")+
+  labs(x="",y=NULL,title="Hand-written numbers: sample")+
+  theme(
+  strip.background = element_blank(),
+  strip.text.x = element_blank(),
+  legend.position = "none",
+  #axis.title=element_blank(),
+  axis.text = element_blank(),
+  axis.ticks = element_blank()
+)
+```
 
 # Week 5: coming up
