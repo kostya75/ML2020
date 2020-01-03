@@ -3,46 +3,46 @@
 ########## testing#########
 
 #df_numbers<-do.call(,data_numbers)
-df_numbers<-data.frame(data_numbers)
-
-theta<-rep(0,401)
-hr_all<-gdlregMulti(y~.,data=df_numbers,theta=theta,lambda=0,method="BFGS")
-
-
-X2<-df_numbers[,-401]
-y1<-df_numbers[,401]
-hr_all_predict<-predictOneVsAll(hr_all[["all_theta"]],X2,hr_all[["y_class"]])
-
-# all
-confusion_matrix<-prop.table(table(y1,hr_all_predict),1)
-
-# accuracy all
-sum(hr_all_predict==y1)/length(y1)
-
-
-# training index
-train_in<-sample(5000,4000)
-
-# training set
-X_train<-df_numbers[train_in,-401]
-y_train<-df_numbers[train_in,401]
-
-# test set
-X_test<-df_numbers[-train_in,-401]
-y_test<-df_numbers[-train_in,401]
-
-accuracy<-NULL
-for (i in 0:20){
-# train the model
-hr_train<-gdlregMulti(y~.,data=df_numbers,subset=train_in,theta=theta,lambda=i,method="BFGS")
-
-# test
-hr_test_predict<-predictOneVsAll(hr_train[["all_theta"]],X_test,hr_train[["y_class"]])
-
-# accuracy test
-temp_acc<-sum(hr_test_predict==y_test)/length(y_test)
-accuracy<-c(accuracy,temp_acc)
-}
+# df_numbers<-data.frame(data_numbers)
+# 
+# theta<-rep(0,401)
+# hr_all<-gdlregMulti(y~.,data=df_numbers,theta=theta,lambda=0,method="BFGS")
+# 
+# 
+# X2<-df_numbers[,-401]
+# y1<-df_numbers[,401]
+# hr_all_predict<-predictOneVsAll(hr_all[["all_theta"]],X2,hr_all[["y_class"]])
+# 
+# # all
+# confusion_matrix<-prop.table(table(y1,hr_all_predict),1)
+# 
+# # accuracy all
+# sum(hr_all_predict==y1)/length(y1)
+# 
+# 
+# # training index
+# train_in<-sample(5000,4000)
+# 
+# # training set
+# X_train<-df_numbers[train_in,-401]
+# y_train<-df_numbers[train_in,401]
+# 
+# # test set
+# X_test<-df_numbers[-train_in,-401]
+# y_test<-df_numbers[-train_in,401]
+# 
+# accuracy<-NULL
+# for (i in 0:20){
+# # train the model
+# hr_train<-gdlregMulti(y~.,data=df_numbers,subset=train_in,theta=theta,lambda=i,method="BFGS")
+# 
+# # test
+# hr_test_predict<-predictOneVsAll(hr_train[["all_theta"]],X_test,hr_train[["y_class"]])
+# 
+# # accuracy test
+# temp_acc<-sum(hr_test_predict==y_test)/length(y_test)
+# accuracy<-c(accuracy,temp_acc)
+# }
 
 
 

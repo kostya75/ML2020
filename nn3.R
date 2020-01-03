@@ -1,6 +1,6 @@
 # randInitializeWeights.m - Randomly initialize weights
 # nnCostFunction.m - Neural network cost function
-source("CommonML.R")  # sigmoid 
+#source("CommonML.R")  # sigmoid 
                       # sigmoidGradient functions
                       # ones_zeros: create matrix of 1 or 0 based on a size of another matrix
 
@@ -15,7 +15,7 @@ source("CommonML.R")  # sigmoid
 # X<-nn_data[["X"]]
 # y<-nn_data[["y"]]
 
-nn_params = c(as.vector(Theta1),as.vector(Theta2))
+#nn_params = c(as.vector(Theta1),as.vector(Theta2))
 
 ################################# Cost Function ##############################################
 nnCostFunction3<-function(type){
@@ -177,8 +177,8 @@ predict_nn3<-function(nn_model, X){ # nn_model is the list of Thetas produced by
 #### test temp
 
 
-tt<-nn3(X,y, hidden_layer_size=25, num_labels=10,lambda=1,method="BFGS")
-
-
-table(predict_nn3(tt, X))
-table(predict_nn3(tt, X)==y)
+#tt<-nn3(X,y, hidden_layer_size=25, num_labels=10,lambda=1,method="BFGS")
+# 
+# 
+# table(predict_nn3(tt, X))
+# table(predict_nn3(tt, X)==y)
