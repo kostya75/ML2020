@@ -389,10 +389,11 @@ The function `gdlreg` takes the following inputs:
 - `formula` an object of class "formula": a symbolic descriptionof the model to be fitted  
 - `data` data frame  
 - `subset` an optional vector specifying a subset of observations to be used in the fitting process  
-- `theta` a vector of initial values of $\theta$. Length of the vector should match model specification  
+- `theta` a vector of initial values of $\theta$. Length of the vector should match model specification 
+- `lambda` a regularization parameter  
 - `method` the method to be used. See `?optim/method` for details
 
-The function outputs a list that has 3 elements:
+The function outputs:
 
 - `theta` parameter vector of model coefficients   
 
@@ -455,7 +456,7 @@ glm(success~e1+e2,data=grades, family="binomial")$coef
 
 In this section I will be implementing one-vs-all logistic regression to recognize hand-written digits. We have 2 files that contain 5000 trining examples of handritten digits and the corresponding labels. These files are in native *Octave/Matlab* format and will require package `rmatio` from *CRAN* to read them into *R*. The same 2 datasets will be used in the following sectioon on Neural Networks
 
-```{r rmatio, echo=T}
+```{r rmatio, echo=T, message=F}
 library(rmatio)
 
 handwrit_data<-read.mat("w5/ex4data1.mat")
@@ -500,5 +501,80 @@ ggplot(data=number_df,aes(x=x1,y=x2))+geom_raster(aes(fill=value))+facet_wrap(~i
   axis.ticks = element_blank()
 )
 ```
+
+## Cost function and gradient (Regularized)  
+In this section we will be implementing function similar to `lrCostFunction.m`. This functions happens to be exactly the same as **ComputeCostGradient** defined in the previous section and we will be reusing it in this section.
+
+## One-vs-all Classification  
+
+In this part of the exercise, you will implement one-vs-all classfication by training multiple regularized logistic regression classifiers, one for each of the K classes in our dataset. In the handwritten digits dataset, K = 10, but our code will work for any value of K.  
+
+To accomplish this, I will be using function `gdlregMulti` that mimics `OneVSAll.m`.
+The function `gdlregMulti` takes the following inputs:  
+
+- `formula` an object of class "formula": a symbolic descriptionof the model to be fitted  
+- `data` data frame  
+- `subset` an optional vector specifying a subset of observations to be used in the fitting process  
+- `theta` a vector of initial values of $\theta$. Length of the vector should match model specification 
+- `lambda` a regularization parameter  
+- `method` the method to be used. See `?optim/method` for details  
+
+The function outputs a list that has 2 elements:  
+
+- `all_theata` a dataframe, each row contains parameter estimates for each class K  
+- `y_class` vector of class labels in the model  
+
+```{r gdlregMulti, echo=T}
+gdlregMulti<-function(formula,data,subset,theta, lambda=0, method ="BFGS"){
+  #method BFGS works with a large number of features
+  
+  if(is.na(match(method,c("Nelder-Mead", "BFGS", "L-BFGS-B")))) 
+    stop("Please select on of the tested methods: Nelder-Mead, BFGS, L-BFGS-B")
+  
+  mf <- match.call(expand.dots = F)
+  m <- match(c("formula", "data","subset"), 
+             names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  #mf <- mf[m]
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  mf <- eval(mf, parent.frame())
+  mt <- attr(mf, "terms")
+  
+  ymulti <- model.response(mf, "numeric")
+  y_class<-unique(ymulti)
+  x <- model.matrix(mt, mf)
+  # flag if intercept was selected. will set lambda vector[1] (regularization variable) to zero if intercept present in formula
+  infl <- attr(mt,"intercept")
+  #
+  n<-ncol(x)
+  if(n!=length(theta)) 
+    stop("Model formula and initial theta have incompatible dimensions")
+  # two closures are created by ComputeCostGradient function for J and grad
+  
+  all_theta<-NULL
+  for (i in y_class){
+    y<-as.numeric(ymulti %in% i)
+     J<-ComputeCostGradient("J")
+     grad<-ComputeCostGradient("grad") 
+     res<-optim(theta,J,grad,X=x,y=y,infl=infl,lambda=lambda,method=method)$par
+     #all_theta<-data.frame(rbind(all_theta,c(class=i,res)))
+     all_theta<-rbind(all_theta,res)
+     colnames(all_theta)<-colnames(x)
+     rownames(all_theta)<-NULL
+  }
+    
+
+  
+  out<-list(all_theta=all_theta,y_class=y_class)
+
+}
+
+```
+
+
+
+
+
 
 # Week 5: coming up

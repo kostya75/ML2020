@@ -86,16 +86,58 @@ glm(success~e1+e2,data=grades, family="binomial")$coef,
 4)
 
 ###################### week4 ####################
-dfnumbers_small<-df_numbers[sample(5000,1000),]
+# dfnumbers_small<-df_numbers[sample(5000,1000),]
+# 
+# y_class<-unique(dfnumbers_small$y)
+# for (i in y_class){
+#   y<-as.numeric(dfnumbers_small$y %in% i)
+# }
+# 
+# 
+# dfnumbers_small$y<-dfnumbers_small$y==5
+# theta1=rep(0,401)
+# 
+# tt<-gdlreg2(y~.,data=dfnumbers_small,theta=theta1,lambda=0,method="BFGS")
+# tt
 
-y_class<-unique(dfnumbers_small$y)
-for (i in y_class){
-  y<-as.numeric(dfnumbers_small$y %in% i)
+handwrit_data
+handwrit_weights
+
+df_handwrit<-as.data.frame(handwrit_data)
+#tt<-gdlregMulti(y~.,data=df_handwrit,theta=rep(0,401), lambda=1, method ="BFGS")
+
+# training index
+#train_in<-sample(5000,4000)
+train_in<-cut(runif(5000),c(0,.7,.9,1),labels=c("train","cv","test"))
+
+# training set
+X_train<-df_handwrit[train_in=="train",-401]
+y_train<-df_handwrit[train_in=="train",401]
+
+# cross-validation set
+X_cv<-df_handwrit[train_in=="cv",-401]
+y_cv<-df_handwrit[train_in=="cv",401]
+
+# test set
+X_test<-df_handwrit[train_in=="test",-401]
+y_test<-df_handwrit[train_in=="test",401]
+
+accuracy<-NULL
+for (i in 0:20){
+# train the model
+hr_train<-gdlregMulti(y~.,data=df_handwrit,subset=(train_in=="train"),theta=rep(0,401),lambda=i,method="BFGS")
+
+# test CV to determine lambda
+hr_cv_predict<-predictOneVsAll(hr_train,X_cv)
+
+# accuracy test
+temp_acc<-sum(hr_cv_predict==y_cv)/length(y_cv)
+accuracy<-c(accuracy,temp_acc)
 }
 
+cat("Optimal value of lambda:",which.max(accuracy))
 
-dfnumbers_small$y<-dfnumbers_small$y==5
-theta1=rep(0,401)
+hr_train_optimal_l<-gdlregMulti(y~.,data=df_handwrit,subset=(train_in=="train"),theta=rep(0,401),lambda=which.max(accuracy),method="BFGS")
+hr_test_predict<-predictOneVsAll(hr_train,X_test)
+test_accuracy<-sum(hr_test_predict==y_test)/length(y_test)
 
-tt<-gdlreg2(y~.,data=dfnumbers_small,theta=theta1,lambda=0,method="BFGS")
-tt

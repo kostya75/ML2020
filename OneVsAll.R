@@ -137,7 +137,18 @@ gdlregMulti<-function(formula,data,subset,theta, lambda=0, method ="BFGS"){
 #########################
 #predict
 #this function requires an additional input that insures that labels are correctly assigned to each class. More robust in my opinion
-predictOneVsAll<-function(all_theta, X, y_class){
+# predictOneVsAll<-function(all_theta, X, y_class){
+#   if("(Intercept)" %in% colnames(all_theta)){
+#     X<-data.frame(temp=1,X)
+#     names(X)[1] <- "(Intercept)"
+#   }
+#   X<-sigmoid(as.matrix(X)%*%t(all_theta))
+#   X<-apply(X,1,function(x) y_class[which.max(x)])
+# }
+
+predictOneVsAll<-function(OvsA, X){
+  all_theta<-OvsA[["all_theta"]]
+  y_class<-OvsA[["y_class"]]
   if("(Intercept)" %in% colnames(all_theta)){
     X<-data.frame(temp=1,X)
     names(X)[1] <- "(Intercept)"
@@ -145,6 +156,5 @@ predictOneVsAll<-function(all_theta, X, y_class){
   X<-sigmoid(as.matrix(X)%*%t(all_theta))
   X<-apply(X,1,function(x) y_class[which.max(x)])
 }
-
 
 
