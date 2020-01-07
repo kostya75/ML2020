@@ -53,6 +53,7 @@ knitr::opts_chunk$set(eval = TRUE,
 ```{r silent-packages, echo = FALSE, eval = TRUE, message=FALSE, include = FALSE}
 library(ggplot2)
 library(scales)
+library(kableExtra)
 ```
 
 # Introduction
@@ -62,7 +63,6 @@ Welcome to my blog. If you are reading this, most likely you've heard or have ta
 >**Implementation Notes**  
 > This document is aligned with the course assignments, therefore **NO** math deriviation.
 **ML** code is wrapped into model format of **lm, glm** functions. You can supply dataframes directly with model specifications in the format: **y~x1+x2...**
-
 I will make every effort to avoid using any packages other that **ggplot2**. Enjoy!
 
 The **Github repository** for this blog can be found [here](https://github.com/kostya75/ML2020). 
@@ -89,33 +89,25 @@ ggplot(data=df_foodTruck)+geom_point((aes(x=X,y=y)),shape=4,color="red",size=3)+
   scale_x_continuous(labels = scales::comma)+
   labs(x="Population of City in 10,000s", y="Price in $10,000s")+
   theme(panel.background = element_blank(),axis.line = element_line(colour = "black"))
-
 ```
 
 ## Computing the cost $J$($\theta$)
 
 **In this section we will examine implementation of the cost function:**
 ```{r f_cost, echo=T}
-
 computeCost<-function(X, y, theta){
   m<-dim(X)[1]
   J<-(1/(2*m))*t(X%*%theta-y)%*%(X%*%theta-y)
 }
-
 ```
 
 **Do the testing:**
 ```{r cost_ex1_test, echo=T}
-
-
 X<-as.matrix(cbind(rep(1,nrow(df_foodTruck)),df_foodTruck[,c("X")]))
 y<-as.matrix(df_foodTruck["y"])
-
 J<-computeCost(X, y, theta=c(0,0))
-
 sprintf("Computed value of cost function = %s. Expected cost value (approx) 32.07",
        round(J,digits=2))
-
 ```
 
 ## Gradient descent
@@ -134,7 +126,6 @@ The function outputs a list that has 2 elements:
 - `iteration` how many iterations it took to converge  
 
 ```{r f_GradientDescent, echo=T}
-
 gradientDescentMulti<-function(X, y, theta, alpha, num_iters,threshold){
   J_history<-vector(mode = "numeric", length = num_iters)
   m<-nrow(X)
@@ -153,15 +144,12 @@ gradientDescentMulti<-function(X, y, theta, alpha, num_iters,threshold){
   }
   out<-list(theta=theta,iteration=i)
 }
-
 ```
 
 **Testing:** Check the results of **Gradient Descent** against built-in **lm** function
 ```{r gd_tets, echo=T}
-
 theta_GD<-gradientDescentMulti(X,y,theta=c(0,0),alpha=.02,num_iters = 10000,threshold=5e-11)$theta
 theta_LM<-lm(y~X,data=df_foodTruck)$coef
-
 #Compare to Linear regression
 t(theta_GD)
 theta_LM
@@ -198,7 +186,6 @@ featureNormalize<-function(xm, infl){
     scalingMatrix[1,1]<-0
     scalingMatrix[2,1]<-1
   }
-
   mus<-scalingMatrix[rep(1,nrow(xm)),]
   sds<-scalingMatrix[rep(2,nrow(xm)),]
   X_norm<-(xm-mus)/sds
@@ -212,9 +199,7 @@ normalize<-featureNormalize(
   xm=as.matrix(df_prices[c("footage","bedroom")]),
   infl=0
   )
-
 normalize$scalingMatrix
-
 head(normalize$x)
 head(df_prices[c("footage","bedroom")])
 ```
@@ -242,7 +227,6 @@ The function outputs a list that has 3 elements:
 
 ```{r f_gd, echo=T}
 gd<-function(formula,data,subset,theta,alpha=1e-4, num_iters=1e+4, threshold=5e-10, normalize=T){
-
   mf <- match.call(expand.dots = F)
   m <- match(c("formula", "data","subset"), 
              names(mf), 0L)
@@ -288,7 +272,6 @@ In this section we are going to to look at house prices dataset and compare the 
 df_prices_scaled<-df_prices
 # scale
 df_prices_scaled[,c("footage","bedroom")]<-lapply(df_prices[,c("footage","bedroom")],scale)
-
 lm(price~bedroom+footage,data=df_prices_scaled)
 ```
 
@@ -322,9 +305,7 @@ Next, let's visualize the data and examine the relationship between our variable
     legend.position = c(.85,.9),
     legend.background = element_rect(color="black"),
     legend.key = element_blank()
-
   )
-
 ```
 
 <!-- Logistic regression hypothesis is defined as:   -->
@@ -399,7 +380,6 @@ The function outputs:
 
 ```{r gdlreg2, echo=T}
 gdlreg2<-function(formula,data,subset,theta, lambda=0, method ="Nelder-Mead"){
-
   if(is.na(match(method,c("Nelder-Mead", "BFGS", "L-BFGS-B")))) 
     stop("Please select on of the tested methods: Nelder-Mead, BFGS, L-BFGS-B")
   
@@ -443,13 +423,11 @@ In this section we will apply the new gdlreg2 function *R*'s `glm` function. We 
 - **gdlreg2:**
 ```{r gdlr, echo=T}
 gdlreg2(success~e1+e2,data=grades,theta=c(0,0,0),lambda=0)
-
 ```
 
 - **glm/binomial:**
 ```{r glm, echo=T}
 glm(success~e1+e2,data=grades, family="binomial")$coef
-
 ```
 
 # Part 3: Multi-class Classification
@@ -458,7 +436,6 @@ In this section I will be implementing one-vs-all logistic regression to recogni
 
 ```{r rmatio, echo=T, message=F}
 library(rmatio)
-
 handwrit_data<-read.mat("w5/ex4data1.mat")
 handwrit_weights<-read.mat("w5/ex4weights.mat")
 ```
@@ -469,12 +446,9 @@ Next, let's visualize the data. We begin by by randomly selecting 100 rows. Some
 
 ```{r plot_ex3, echo=T}
 library(ggplot2)
-
 m=dim(handwrit_data$X)[1]
 rand_indices<-sample(m,100)
 sel<-handwrit_data$X[rand_indices[1:100],]
-
-
 #Roll vector into a grid with 2 coordinates and the value
 number_df<-NULL
 # individual number (vector of 400 features)
@@ -488,7 +462,6 @@ for (s in 1:100){
     }
   }
 }
-
 ggplot(data=number_df,aes(x=x1,y=x2))+geom_raster(aes(fill=value))+facet_wrap(~index, ncol=10)+
   scale_fill_continuous(type = "viridis")+
   labs(x="",y=NULL,title="Hand-written numbers: sample")+
@@ -564,17 +537,103 @@ gdlregMulti<-function(formula,data,subset,theta, lambda=0, method ="BFGS"){
      rownames(all_theta)<-NULL
   }
     
-
   
   out<-list(all_theta=all_theta,y_class=y_class)
-
 }
+```
+
+## One-vs-all Prediction  
+
+In this section I will examine `predictOneVsAll` function that mimics `predictOneVsAll.m`.
+
+The function one input from `gdlregMulti` classifier that contains 2 elements:  
+
+- `all_theata` a dataframe, each row contains parameter estimates for each class K  
+- `y_class` vector of class labels in the model 
+
+```{r test1, echo=T}
+predictOneVsAll<-function(OvsA, X){
+  all_theta<-OvsA[["all_theta"]]
+  y_class<-OvsA[["y_class"]]
+  if("(Intercept)" %in% colnames(all_theta)){
+    X<-data.frame(temp=1,X)
+    names(X)[1] <- "(Intercept)"
+  }
+  X<-sigmoid(as.matrix(X)%*%t(all_theta))
+  X<-apply(X,1,function(x) y_class[which.max(x)])
+}
+
+``` 
+
+## Testing
+
+Evaluation of model performance will consist of several steps:  
+
+1. Split the dataset into 3 parts: *training* (70%), *cross-validation* (20%), *test* (10%)  
+2. Train the model on *training* over the range of "$\lambda$"  
+3. Evaluate accuracy of each model on *cross-validation* set. Pick the value of "$\lambda$" that maximizes the accuracy on *cross-validation* set  
+4. Train the model on *training* dataset with the optimal "$\lambda$"  
+5. Evaluate the accuracy of the final model on *test* set  
+
+```{r test2, echo=T}
+
+df_handwrit<-as.data.frame(handwrit_data)
+
+# training index
+train_in<-factor(sample(c("train","cv","test"),m,replace=T, prob=c(.7,.2,.1)))
+
+# training set
+X_train<-df_handwrit[train_in=="train",-401]
+y_train<-df_handwrit[train_in=="train",401]
+
+# cross-validation set
+X_cv<-df_handwrit[train_in=="cv",-401]
+y_cv<-df_handwrit[train_in=="cv",401]
+
+# test set
+X_test<-df_handwrit[train_in=="test",-401]
+y_test<-df_handwrit[train_in=="test",401]
+
+# accuracy collector
+accuracy<-NULL
+for (i in 0:20){
+# train the model
+hr_train<-gdlregMulti(y~.,data=df_handwrit,subset=(train_in=="train"),theta=rep(0,401),lambda=i,method="BFGS")
+
+# test CV to determine lambda
+hr_cv_predict<-predictOneVsAll(hr_train,X_cv)
+
+# accuracy test
+temp_acc<-sum(hr_cv_predict==y_cv)/length(y_cv)
+accuracy<-c(accuracy,temp_acc)
+}
+
+optimal_l<-(0:20)[which.max(accuracy)]
+cat("Optimal value of lambda:",optimal_l)
+
+df_accuracy<-data.frame(lambda=0:20,Accuracy=accuracy)
+ggplot(data=df_accuracy)+geom_point(aes(lambda,Accuracy))+geom_line(aes(lambda,Accuracy))+
+  geom_vline(aes(xintercept=optimal_l))+
+  geom_point(aes(x=optimal_l,y=accuracy[which.max(accuracy)]),color="red",size=3)+
+  scale_x_continuous(labels=0:20,breaks=0:20)+labs(title="Accuracy Vs. lambda")+
+  theme(panel.background = element_blank(),axis.line = element_line(colour = "black"))
+
 
 ```
 
+## Final model evaluation  
+
+In this section I will be estimating the model based on the *training* set and optimal value of $\lambda$=3:
+
+```{r test3, echo=T}
+hr_train_optimal_l<-gdlregMulti(y~.,data=df_handwrit,subset=(train_in=="train"),theta=rep(0,401),lambda=optimal_l,method="BFGS")
+hr_test_predict<-predictOneVsAll(hr_train,X_test)
+test_accuracy<-sum(hr_test_predict==y_test)/length(y_test)
+
+cat("Model Accuracy:",percent(test_accuracy))
+
+table(predicted=hr_test_predict,actual=y_test)
+```
 
 
-
-
-
-# Week 5: coming up
+# Part 4: coming up NN

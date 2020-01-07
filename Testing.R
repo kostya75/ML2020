@@ -85,7 +85,7 @@ round(
 glm(success~e1+e2,data=grades, family="binomial")$coef,
 4)
 
-###################### week4 ####################
+###################### week4 ex3 ####################
 # dfnumbers_small<-df_numbers[sample(5000,1000),]
 # 
 # y_class<-unique(dfnumbers_small$y)
@@ -107,8 +107,8 @@ df_handwrit<-as.data.frame(handwrit_data)
 #tt<-gdlregMulti(y~.,data=df_handwrit,theta=rep(0,401), lambda=1, method ="BFGS")
 
 # training index
-#train_in<-sample(5000,4000)
-train_in<-cut(runif(5000),c(0,.7,.9,1),labels=c("train","cv","test"))
+train_in<-factor(sample(c("train","cv","test"),5000,replace=T, prob=c(.7,.2,.1)))
+#train_in<-cut(runif(5000),c(0,.7,.9,1),labels=c("train","cv","test"))
 
 # training set
 X_train<-df_handwrit[train_in=="train",-401]
@@ -135,9 +135,20 @@ temp_acc<-sum(hr_cv_predict==y_cv)/length(y_cv)
 accuracy<-c(accuracy,temp_acc)
 }
 
-cat("Optimal value of lambda:",which.max(accuracy))
+optimal_l<-(0:20)[which.max(accuracy)]
+cat("Optimal value of lambda:",optimal_l)
 
-hr_train_optimal_l<-gdlregMulti(y~.,data=df_handwrit,subset=(train_in=="train"),theta=rep(0,401),lambda=which.max(accuracy),method="BFGS")
+df_accuracy<-data.frame(lambda=0:20,Accuracy=accuracy)
+ggplot(data=df_accuracy)+geom_point(aes(lambda,Accuracy))+geom_line(aes(lambda,Accuracy))+
+  geom_vline(aes(xintercept=optimal_l))+
+  geom_point(aes(x=optimal_l,y=accuracy[which.max(accuracy)]),color="red",size=3)+
+  scale_x_continuous(labels=0:20,breaks=0:20)+labs(title="Accuracy Vs. lambda")+
+  theme(panel.background = element_blank(),axis.line = element_line(colour = "black"))
+
+
+hr_train_optimal_l<-gdlregMulti(y~.,data=df_handwrit,subset=(train_in=="train"),theta=rep(0,401),lambda=optimal_l,method="BFGS")
 hr_test_predict<-predictOneVsAll(hr_train,X_test)
 test_accuracy<-sum(hr_test_predict==y_test)/length(y_test)
+cat("Model Accuracy:",test_accuracy)
 
+table(predicted=hr_test_predict,actual=y_test)
