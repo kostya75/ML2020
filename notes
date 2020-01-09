@@ -22,3 +22,4 @@ part3: w4:
 HandWriting.R: example of the data (replicate displayData.m)
 ComputeCostGradient from w3 replicates lrCostFunction(theta, X, y, lambda)
 OneVsAll.R gdlregMulti: can handle multiclass, no need to specify K. based of gdlreg_wip
+
