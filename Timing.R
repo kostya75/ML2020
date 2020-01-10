@@ -62,4 +62,4 @@ lines(seq(1,5,by=0.2),accuracy)
 abline(v=optimal_l,lty=2)
 }
 
-system.time(timing_OvsA())
+print(system.time(timing_OvsA()))
