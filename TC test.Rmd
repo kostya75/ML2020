@@ -58,14 +58,14 @@ library(kableExtra)
 
 # Introduction
 
-Welcome to my blog. If you are reading this, most likely you've heard or have taken an amizing course taught by **Andrew Ng** on *Machine Learning*. I had the privelege of taking this course in 2011 and was able to rely on the learnings from it for years to come. One thing I always wished for is that course was taught in **R** instead of *Octave/Matlab*, so I decided to do all the assignments in the course using **R**. 
+Welcome to my blog. If you are reading this, most likely you've heard or have taken a course taught by **Andrew Ng** on *Machine Learning* on *Coursera*. One thing I always wished for is that course was taught in **R** instead of *Octave/Matlab*, so I decided to do all the assignments in the course using **R**. 
 
 >**Implementation Notes**  
 > This document is aligned with the course assignments, therefore **NO** math deriviation.
 **ML** code is wrapped into model format of **lm, glm** functions. You can supply dataframes directly with model specifications in the format: **y~x1+x2...**
 I will make every effort to avoid using any packages other that **ggplot2**. Enjoy!
 
-The **Github repository** for this blog can be found [here](https://github.com/kostya75/ML2020). 
+The **Github repository** for this blog can be found [here](github.com/kostya75/ML2020). 
 
 # Part 1: Gradient Descent
 
@@ -322,7 +322,7 @@ sigmoid<-function(z){
 ```
 
 ## Cost function and gradient (Regularized)  
-In this section we will be implementing function similar to `costFunctionReg.m`. That is the function will have two outputs: cost and gradient. In place of *Octave/Matlab*'s `fminunc` we will be using *R*'s general purpose optimization function `optim`. The format of two functions is remarkably similar.  
+In this section we will be implementing function similar to `costFunctionReg.m`. This function will have two outputs: cost and gradient. In place of *Octave/Matlab*'s `fminunc` we will be using *R*'s general purpose optimization function `optim`. The format of two functions is very similar.  
 Some additional notes about implementation in *R*:  
 
 - Since the function is capable of dealing with regularization, it also requires an input `infl` that indicates whether or not model specification has intercept to avoid regularizing it  
@@ -637,3 +637,89 @@ table(predicted=hr_test_predict,actual=y_test)
 
 
 # Part 4: coming up NN
+
+# Part 8: Anomaly Detection and Recommender Systems
+
+In this part I will implement collaborative filtering and apply it to a dataset of movie ratings. This dataset consists of ratings on a scale of 1 to 5. The dataset has *n~u~*=943 users, and *n~m~=1,682* movies. Start with loading the movie database files:
+
+```{r readMovies, echo=T}
+# initial parameters
+movieParams<-read.mat("w9/ex8_movieParams.mat")
+# movie ratings
+movies<-read.mat("w9/ex8_movies.mat")
+
+# movie IDs
+movieList<-readLines("w9/movie_ids.txt")
+movieList<-data.frame(index=regmatches(movieList,regexpr("^[0-9]*",movieList)),MovieName=sub("^[0-9]*\\s","\\1",movieList))
+
+```
+
+## Cost function and gradient (Regularized)  
+
+In this section we will be implementing function similar to `cofiCostFunc.m`. This function will have two outputs: cost and gradient.  
+Some additional notes about implementation in *R*:  
+
+- An actual cost/gradient function is wrapped into a simple function that only take one input `type` and output two *closures* that can be supplied to `optim` as separate function, cost and gradient  
+
+The function `cofi` takes the following inputs: 
+
+- `type` 2 options: "J" to output cost function, "grad" to output gradient function  
+
+The inside anonymous function takes the following inputs:  
+
+- `params` initial unrolled values for X and Theta stacked
+- `Y` matrix of movie ratings
+
+The function outputs 2 closures:
+
+- `J` for cost function  
+- `grad` for gradient function  
+- `R` binary-valued indicator matrix, were *R(i,j)*=1 if user *j* gave a rating to movie *i*, and 0 otherwise
+
+```{r CostCoFi, echo=T}
+
+cofi<-function(type){
+  function(params, Y, R, num_users, num_movies, num_features, lambda){
+    
+    X<-matrix(
+      params[1:(num_movies*num_features)],
+      nrow=num_movies,
+      ncol=num_features
+    )
+    
+    Theta<-matrix(
+      params[(num_movies*num_features+1):length(params)],
+      nrow=num_users,
+      ncol=num_features
+    )
+    
+    
+    # COST FUNCTION
+    J_reg<-(lambda/2)*sum(Theta^2)+(lambda/2)*sum(X^2)
+    
+    J<-(1/2)*sum(R*(X%*%t(Theta)-Y)^2)+J_reg
+    
+    # GRADIENTS
+    
+    Theta_grad=t(R*(X%*%t(Theta)-Y))%*%X+lambda*Theta
+    
+    X_grad=(R*(X%*%t(Theta)-Y))%*%Theta+lambda*X
+   
+    
+    grad<-c(as.vector(X_grad),as.vector(Theta_grad))
+    
+    
+    if(type=="J"){
+      J
+    }
+    else if(type=="grad"){
+      grad
+    }
+    else stop("Invalid output request from CostGradient: acceptable values are: 'J' and 'grad'")
+    
+  }
+}
+```
+
+
+

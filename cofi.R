@@ -161,27 +161,21 @@ checkCOGradients(cofi,Y, R, num_users, num_movies, num_features, lambda=0)
 
 # enter some rating for myself
 
-movieList[grepl("Indian",movieList$MovieName),]
+#movieList[grepl("Indian",movieList$MovieName),]
 
 my_ratings<-vector(mode="numeric",length=1682)
 
-
-# my_ratings[1]<-4
-# my_ratings[98]<-2
-# my_ratings[7]<-3
-# my_ratings[12]<-5
-# my_ratings[54]<-4
-# my_ratings[64]<-5
-# my_ratings[66]<-3
-# my_ratings[69]<-5
-# my_ratings[183]<-4
-# my_ratings[226]<-5
-# my_ratings[355]<-5
-
-my_ratings[250]<-5 # 5 element
-my_ratings[121]<-5 # ID
-my_ratings[172]<-5 # ESB
-my_ratings[210]<-5 # Ind Jones
+my_ratings[1]<-4
+my_ratings[98]<-
+my_ratings[7]<-3
+my_ratings[12]<-5
+my_ratings[54]<-4
+my_ratings[64]<-5
+my_ratings[66]<-3
+my_ratings[69]<-5
+my_ratings[183]<-4
+my_ratings[226]<-5
+my_ratings[355]<-5
 
 cat('\n\nNew user ratings:\n')
 for (i in seq_along(my_ratings)){
@@ -248,7 +242,7 @@ Theta<-matrix(
 p<-X%*%t(Theta)
 my_predictions <- p[,1] + Ymean
 
-movieList[order(my_predictions,decreasing = T),][1:20,]
+movieList[order(my_predictions,decreasing = T),][1:10,]
 
 movieList[order(my_ratings,decreasing = T),][1:4,]
 
