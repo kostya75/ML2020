@@ -652,6 +652,11 @@ movies<-read.mat("w9/ex8_movies.mat")
 movieList<-readLines("w9/movie_ids.txt")
 movieList<-data.frame(index=regmatches(movieList,regexpr("^[0-9]*",movieList)),MovieName=sub("^[0-9]*\\s","\\1",movieList))
 
+Y<-movies[["Y"]]
+R<-movies[["R"]]
+X<-movieParams[["X"]]
+Theta<-movieParams[["Theta"]]
+
 ```
 
 ## Cost function and gradient (Regularized)  
@@ -719,6 +724,68 @@ cofi<-function(type){
     
   }
 }
+```
+
+## Geadient Checking  
+
+Before proceeding further, I'm going to test the performance of `cofi` function, specifically I will be comparing analytical gradients to numeric. To perform the gradient checking, I created the function `checkCOGradients`. This fuction will output two rows of number: analytical and numeric gradients. The fuction takes the following inputs:  
+
+- `costFunc` function to be evaluated  
+- `Y` matrix of movie ratings  
+- `R` binary-valued indicator matrix, were *R(i,j)*=1 if user *j* gave a rating to movie *i*, and 0 otherwise  
+- `num_users`  
+- `num_movies`  
+- `num_features`  
+- `lambda` a regularization parameter  
+
+```{r cofiGradient, echo=T}
+checkCOGradients<-function(costFunc,Y, R, num_users, num_movies, num_features, lambda=0){
+  grad<-costFunc("grad")
+  J<-costFunc("J")
+  
+  
+
+   params<-rnorm((num_users+num_movies)*num_features)
+  
+  #
+  g_analytical<-grad(params=params,Y=Y, R=R, num_users=num_users, num_movies=num_movies, num_features=num_features,lambda=lambda)
+  l<-length(g_analytical)
+  
+  e<-1e-4
+  g_numeric<-vector(mode="numeric",length=l)
+  
+  for (i in 1:l){
+    e_vector<-rep(0,l)
+    e_vector[i]<-e
+    param_plus<-params+e_vector
+    param_minus<-params-e_vector
+    JP<-J(param_plus,Y=Y, R=R, num_users=num_users, num_movies=num_movies, num_features=num_features,lambda=lambda)
+    JM<-J(param_minus,Y=Y, R=R, num_users=num_users, num_movies=num_movies, num_features=num_features,lambda=lambda)
+    g_numeric[i]<-(JP-JM)/(2*e)
+    
+  }
+  cbind(Numeric=g_numeric,Analytical=g_analytical[1:l])
+}
+```
+
+To test the cost function I will be creating a small test dataset:
+
+```{r cofiSmall, echo=T}
+num_users = 4
+num_movies = 5
+num_features = 3
+
+X = X[1:num_movies, 1:num_features]
+Theta = Theta[1:num_users, 1:num_features]
+
+Y = Y[1:num_movies, 1:num_users]
+R = R[1:num_movies, 1:num_users]
+```
+
+Perform gradient checking:  
+
+```{r cofiTest, echo=T}
+checkCOGradients(cofi,Y, R, num_users, num_movies, num_features, lambda=0)
 ```
 
 
