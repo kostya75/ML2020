@@ -165,8 +165,7 @@ checkCOGradients(cofi,Y, R, num_users, num_movies, num_features, lambda=0)
 
 my_ratings<-vector(mode="numeric",length=1682)
 
-my_ratings[1]<-4
-my_ratings[98]<-
+
 my_ratings[7]<-3
 my_ratings[12]<-5
 my_ratings[54]<-4

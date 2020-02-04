@@ -37,7 +37,7 @@ pre {
 ```{r set-global-options, echo = FALSE}
 knitr::opts_chunk$set(eval = TRUE, 
                       echo = TRUE, 
-                      cache = FALSE,
+                      cache = F,
                       include = TRUE,
                       collapse = FALSE,
                       dependson = NULL,
@@ -788,5 +788,121 @@ Perform gradient checking:
 checkCOGradients(cofi,Y, R, num_users, num_movies, num_features, lambda=0)
 ```
 
+Analytical and numerical gradients look exactly the same. 
 
+## Normalize Ratings  
+
+In this step we eill be implementing the function that normalizes movie ratings by mean rating for that movies. The rezulting normalized entries will have mean zero rating for each movie. The fuction takes the following inputs:  
+
+- `Y` matrix of movie ratings  
+- `R` binary-valued indicator matrix, were *R(i,j)*=1 if user *j* gave a rating to movie *i*, and 0 otherwise  
+
+The function outputs 2 maricies:
+
+- `Ynorm` mean normalized version of `Y`  
+- `Ymean` vector of length `num_movies` with mean ration foe each movie  
+
+```{r normalize_cofi, echo=T}
+
+normalizeRatings<-function(Y, R){
+  m<-dim(Y)[1] # movies
+  n<-dim(Y)[2] # users
+  Ymean<-vector(mode="numeric",length=m)
+  Ynorm<-matrix(0,nrow=m,ncol=n)
+  for (i in 1:m){
+    idx<-which(R[i,]==1)
+    Ymean[i]<-mean(Y[i,idx])
+    Ynorm[i,idx]<-Y[i,idx]-Ymean[i]
+  }
+  list(Ynorm=Ynorm,Ymean=Ymean)
+}
+```
+
+
+We can move on to creating movie recommendations
+
+## Learning Movie Recommendations  
+
+In this step we will train the collaborative filtering. I'll be using the same movie preferences as in the course material:  
+
+```{r myrating, echo=T}
+
+# re-load full dataset
+Y<-movies[["Y"]]
+R<-movies[["R"]]
+
+my_ratings<-vector(mode="numeric",length=dim(Y)[1])
+
+my_ratings(1)<-4
+my_ratings(98)<-2
+my_ratings[7]<-3
+my_ratings[12]<-5
+my_ratings[54]<-4
+my_ratings[64]<-5
+my_ratings[66]<-3
+my_ratings[69]<-5
+my_ratings[183]<-4
+my_ratings[226]<-5
+my_ratings[355]<-5
+
+cat('\n\nNew user ratings:\n')
+for (i in seq_along(my_ratings)){
+  if(my_ratings[i]>0){
+    cat(sprintf("Rated %d for %s \n",my_ratings[i],movieList$MovieName[i]))
+
+  }
+}
+
+# append the data to the main dataset
+
+Y<-cbind(as.matrix(my_ratings),Y)
+R<-cbind(as.matrix(my_ratings!=0),R)
+
+# Normalize (mean) ratings
+
+Y_norm_list<-normalizeRatings(Y, R)
+Ynorm<-Y_norm_list[["Ynorm"]]
+Ymean<-Y_norm_list[["Ymean"]]
+
+num_users<-dim(Y)[2]
+num_movies<-dim(Y)[1]
+num_features<-10 # arbitrary value
+
+# Set initial values for Theta and X
+X<-matrix(rnorm(num_movies*num_features),num_movies,num_features)
+Theta<-matrix(rnorm(num_users*num_features),num_users,num_features)
+
+# initial parameters
+
+initial_parameters<-c(as.vector(X),as.vector(Theta))
+lambda<-10
+
+# run
+
+J<-cofi("J")
+grad<-cofi("grad")
+
+res<-optim(initial_parameters,J,grad,Y=Ynorm,R=R,num_users=num_users, num_movies=num_movies, num_features=num_features,lambda=lambda,method="BFGS")
+res<-res$par
+
+# unroll to matricies
+
+X<-matrix(
+  res[1:(num_movies*num_features)],
+  nrow=num_movies,
+  ncol=num_features
+)
+
+Theta<-matrix(
+  res[(num_movies*num_features+1):length(res)],
+  nrow=num_users,
+  ncol=num_features
+)
+
+# predictions
+p<-X%*%t(Theta)
+my_predictions <- p[,1] + Ymean
+
+movieList[order(my_predictions,decreasing = T),][1:10,]
+```
 
