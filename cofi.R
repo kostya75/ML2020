@@ -166,6 +166,8 @@ checkCOGradients(cofi,Y, R, num_users, num_movies, num_features, lambda=0)
 my_ratings<-vector(mode="numeric",length=1682)
 
 
+my_ratings[1]<-4
+my_ratings[98]<-2
 my_ratings[7]<-3
 my_ratings[12]<-5
 my_ratings[54]<-4
@@ -220,7 +222,7 @@ lambda<-10
 J<-cofi("J")
 grad<-cofi("grad")
 
-res<-optim(initial_parameters,J,grad,Y=Ynorm,R=R,num_users=num_users, num_movies=num_movies, num_features=num_features,lambda=lambda,method="BFGS")
+res<-optim(initial_parameters,J,grad,Y=Ynorm,R=R,num_users=num_users, num_movies=num_movies, num_features=num_features,lambda=lambda,method="CG")
 res<-res$par
 
 # unroll to matricies
@@ -242,7 +244,8 @@ p<-X%*%t(Theta)
 my_predictions <- p[,1] + Ymean
 
 movieList[order(my_predictions,decreasing = T),][1:10,]
+my_predictions[order(my_predictions,decreasing = T)][1:12]
 
-movieList[order(my_ratings,decreasing = T),][1:4,]
+#movieList[order(my_ratings,decreasing = T),][1:4,]
 
 

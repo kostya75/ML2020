@@ -37,7 +37,7 @@ pre {
 ```{r set-global-options, echo = FALSE}
 knitr::opts_chunk$set(eval = TRUE, 
                       echo = TRUE, 
-                      cache = F,
+                      cache = T,
                       include = TRUE,
                       collapse = FALSE,
                       dependson = NULL,
@@ -833,8 +833,8 @@ R<-movies[["R"]]
 
 my_ratings<-vector(mode="numeric",length=dim(Y)[1])
 
-my_ratings(1)<-4
-my_ratings(98)<-2
+my_ratings[1]<-4
+my_ratings[98]<-2
 my_ratings[7]<-3
 my_ratings[12]<-5
 my_ratings[54]<-4
@@ -882,7 +882,7 @@ lambda<-10
 J<-cofi("J")
 grad<-cofi("grad")
 
-res<-optim(initial_parameters,J,grad,Y=Ynorm,R=R,num_users=num_users, num_movies=num_movies, num_features=num_features,lambda=lambda,method="BFGS")
+res<-optim(initial_parameters,J,grad,Y=Ynorm,R=R,num_users=num_users, num_movies=num_movies, num_features=num_features,lambda=lambda,method="L-BFGS-B")
 res<-res$par
 
 # unroll to matricies
@@ -905,4 +905,11 @@ my_predictions <- p[,1] + Ymean
 
 movieList[order(my_predictions,decreasing = T),][1:10,]
 ```
+
+## Final Comments on CoFi  
+
+I tried several optimizations methods: `BFGS`, `CG` and `L-BFGS-B`:  
+
+- Both `CG` and `L-BFGS-B` push the same top 10 in a different order as **Octave** implementation
+- `BFGS` produces a result that is close, but not exact. That is, I need to expand the list to top 12 to get the 10 recommendations from the other methods
 
