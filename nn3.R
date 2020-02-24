@@ -132,7 +132,7 @@ nn3<-function(X,y,hidden_layer_size, num_labels,lambda=0,method="BFGS"){
   J<-nnCostFunction3("J")
   grad<-nnCostFunction3("grad")
   # RUN Optimization
-  res<-optim(nn_params,J,grad,X,y,input_layer_size=input_layer_size, hidden_layer_size=hidden_layer_size, num_labels=num_labels,lambda=lambda, method=method)
+  res<-optim(nn_params,J,grad,X,y,input_layer_size=input_layer_size, hidden_layer_size=hidden_layer_size, num_labels=num_labels,lambda=lambda, method=method, control=(maxit=500))
   # Reshape back to matrix
   Theta1_hat<-matrix(
     res$par[1:(hidden_layer_size*(input_layer_size+1))],
@@ -150,8 +150,10 @@ nn3<-function(X,y,hidden_layer_size, num_labels,lambda=0,method="BFGS"){
     nrow=num_labels,
     ncol=(hidden_layer_size+1))
   
+  converge<-res$convergence
+  
   # Result
-  out<-list(Theta1_hat=Theta1_hat, Theta2_hat=Theta2_hat, Theta3_hat=Theta3_hat)
+  out<-list(Theta1_hat=Theta1_hat, Theta2_hat=Theta2_hat, Theta3_hat=Theta3_hat, converge=converge)
 }
 
 ################################# Predict_NN ##################################################
